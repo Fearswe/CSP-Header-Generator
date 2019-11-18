@@ -18,7 +18,7 @@ namespace CSP_Header_Generator
 			Style
 		}
 
-		internal static class StaticValues
+		public static class StaticValues
 		{
 			public static String Wildcard = "'*'";
 			public static String Self = "'self'";
@@ -70,7 +70,7 @@ namespace CSP_Header_Generator
 			}
 			else
 			{
-				this.Directives.Add(directiveType.ToLower(), new List<String>());
+				this.Directives.Add(directiveType.ToLower(), new List<String> { value });
 			}
 		}
 
@@ -139,9 +139,9 @@ namespace CSP_Header_Generator
 		}
 
 
-		public String ToHeader()
+		public override String ToString()
 		{
-			String header = "";
+			String header = String.Empty;
 
 			foreach (var directive in this.Directives)
 			{
@@ -151,6 +151,10 @@ namespace CSP_Header_Generator
 				}
 			}
 
+			if(String.IsNullOrWhiteSpace(header))
+			{
+				throw new Exception("No directives declared");
+			}
 			return header.Trim();
 		}
 
