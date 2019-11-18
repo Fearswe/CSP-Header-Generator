@@ -1,7 +1,8 @@
 # CSP Header Generator
 
 A small and simple library to help generate rules for CSP (Content-Security-Policy) headers.
-Quick features:
+
+#### Quick features:
 * Enum for most common directive names
 * Constants for some of the common values
 * Can add your own directives, should the enum be incomplete
