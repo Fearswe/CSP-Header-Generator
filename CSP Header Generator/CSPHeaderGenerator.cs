@@ -71,14 +71,7 @@ namespace CSP_Header_Generator
 		/// <param name="value">The value to add to the directive</param>
 		public void AddDirective(DirectiveType directiveType, String value)
 		{
-			if (this.Directives.TryGetValue(directiveType.ToString().ToLower(), out List<String> directive))
-			{
-				directive.Add(value);
-			}
-			else
-			{
-				this.Directives.Add(directiveType.ToString().ToLower(), new List<String>());
-			}
+			this.AddDirective(directiveType.ToString(), value);
 		}
 
 		/// <summary>
@@ -90,7 +83,11 @@ namespace CSP_Header_Generator
 		{
 			if (this.Directives.TryGetValue(directiveType.ToLower(), out List<String> directive))
 			{
-				directive.Add(value);
+				if(!directive.Contains(value))
+				{
+					directive.Add(value);
+				}
+				
 			}
 			else
 			{
@@ -104,14 +101,7 @@ namespace CSP_Header_Generator
 		/// <param name="uri">The uri to the server to send the report to</param>
 		public void AddReportUri(String uri)
 		{
-			if(this.Directives.TryGetValue("report-uri", out List<String> directive))
-			{
-				directive.Add(uri);
-			}
-			else
-			{
-				this.Directives.Add("report-uri", new List<String> { uri });
-			}
+			this.AddDirective("report-uri", uri);
 		}
 
 		/// <summary>
