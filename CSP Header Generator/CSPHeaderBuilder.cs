@@ -5,6 +5,9 @@ namespace CSP_Header_Generator
 {
 	public class CSPHeaderBuilder
 	{
+		/// <summary>
+		/// Common directive types
+		/// </summary>
 		public enum DirectiveType
 		{
 			Default,
@@ -17,7 +20,10 @@ namespace CSP_Header_Generator
 			Script,
 			Style
 		}
-
+		
+		/// <summary>
+		/// Common values for directives
+		/// </summary>
 		public static class StaticValues
 		{
 			public static String Wildcard = "'*'";
@@ -35,6 +41,9 @@ namespace CSP_Header_Generator
 
 		private Dictionary<String, List<String>> Directives { get; set; }
 
+		/// <summary>
+		/// Default constructor
+		/// </summary>
 		public CSPHeaderBuilder()
 		{
 			this.Directives = new Dictionary<String, List<String>>();
@@ -45,11 +54,20 @@ namespace CSP_Header_Generator
 			}
 		}
 
+		/// <summary>
+		/// Default constructor but allows specifying the Default directive
+		/// </summary>
+		/// <param name="Default">Value of the Default directive</param>
 		public CSPHeaderBuilder(String Default) : this()
 		{
 			this.AddDirective(DirectiveType.Default, Default);
 		}
 
+		/// <summary>
+		/// Add a value to a directive using the common directive types
+		/// </summary>
+		/// <param name="directiveType">The directive to add value to</param>
+		/// <param name="value">The value to add to the directive</param>
 		public void AddDirective(DirectiveType directiveType, String value)
 		{
 			if (this.Directives.TryGetValue(directiveType.ToString().ToLower(), out List<String> directive))
@@ -62,6 +80,11 @@ namespace CSP_Header_Generator
 			}
 		}
 
+		/// <summary>
+		/// Add a custom, or common, directive type and assing it a value
+		/// </summary>
+		/// <param name="directiveType">The directive type to add</param>
+		/// <param name="value">The value to set to the directive type</param>
 		public void AddDirective(String directiveType, String value)
 		{
 			if (this.Directives.TryGetValue(directiveType.ToLower(), out List<String> directive))
@@ -74,7 +97,10 @@ namespace CSP_Header_Generator
 			}
 		}
 
-
+		/// <summary>
+		/// Automatically add the directives needed and used by Google Tag Manager
+		/// </summary>
+		/// <param name="customJavascriptVariables">If you use custom javascript variables, will allow unsafe-eval for scripts</param>
 		public void AddGoogleTagManager(Boolean customJavascriptVariables = false)
 		{
 			this.AddDirective(DirectiveType.Script, StaticValues.UnsafeInline);
@@ -89,6 +115,9 @@ namespace CSP_Header_Generator
 
 		}
 
+		/// <summary>
+		/// Automatically add the directives needed and used by Google Tag Manager Preview
+		/// </summary>
 		public void AddGoogleTagManagerPreview()
 		{
 			this.AddDirective(DirectiveType.Script, "https://tagmanager.google.com");
@@ -103,6 +132,9 @@ namespace CSP_Header_Generator
 			this.AddDirective(DirectiveType.Font, StaticValues.SchemaData);
 		}
 
+		/// <summary>
+		/// Automatically add the directives needed and used by Google Analytics
+		/// </summary>
 		public void AddGoogleAnalytics()
 		{
 			this.AddDirective(DirectiveType.Script, "https://www.google-analytics.com");
@@ -113,11 +145,17 @@ namespace CSP_Header_Generator
 			this.AddDirective(DirectiveType.Connect, "https://www.google-analytics.com");
 		}
 
+		/// <summary>
+		/// Automatically add the directives needed and used by Google Optimize
+		/// </summary>
 		public void AddGoogleOptimize()
 		{
 			this.AddDirective(DirectiveType.Script, "https://www.google-analytics.com");
 		}
 
+		/// <summary>
+		/// Automatically add the directives needed and used by Google Ads Conversions
+		/// </summary>
 		public void AddGoogleAdsConversions()
 		{
 			this.AddDirective(DirectiveType.Script, "https://www.googleadservices.com");
@@ -127,6 +165,9 @@ namespace CSP_Header_Generator
 			this.AddDirective(DirectiveType.Img, "https://www.google.com");
 		}
 
+		/// <summary>
+		/// Automatically add the directives needed and used by Google Ads Remarketing
+		/// </summary>
 		public void AddGoogleAdsRemarketing()
 		{
 			this.AddDirective(DirectiveType.Script, "https://www.googleadservices.com");
@@ -138,7 +179,10 @@ namespace CSP_Header_Generator
 			this.AddDirective(DirectiveType.Frame, "https://bid.g.doubleclick.net");
 		}
 
-
+		/// <summary>
+		/// Generate the complete set of directives ready to use as a header value
+		/// </summary>
+		/// <returns>The directive set</returns>
 		public override String ToString()
 		{
 			String header = String.Empty;
