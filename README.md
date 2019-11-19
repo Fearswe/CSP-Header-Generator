@@ -10,12 +10,12 @@ A small and simple library to help generate rules for CSP (Content-Security-Poli
 
 ## Example usage
 ```C#
-CSPHeaderBuilder headerBuilder = new CSPHeaderBuilder(CSPHeaderBuilder.StaticValues.None);
-headerBuilder.AddDirective(CSPHeaderBuilder.DirectiveType.Font, CSPHeaderBuilder.StaticValues.Self);
-headerBuilder.AddDirective(CSPHeaderBuilder.DirectiveType.Img, CSPHeaderBuilder.StaticValues.Self);
-headerBuilder.AddDirective(CSPHeaderBuilder.DirectiveType.Img, CSPHeaderBuilder.StaticValues.SchemaData);
-headerBuilder.AddDirective(CSPHeaderBuilder.DirectiveType.Style, CSPHeaderBuilder.StaticValues.Self);
-headerBuilder.AddGoogleTagManager();
+CSPHeaderGenerator headerGenerator = new CSPHeaderGenerator(CSPHeaderGenerator.StaticValues.None);
+headerGenerator.AddDirective(CSPHeaderGenerator.DirectiveType.Font, CSPHeaderGenerator.StaticValues.Self);
+headerGenerator.AddDirective(CSPHeaderGenerator.DirectiveType.Img, CSPHeaderGenerator.StaticValues.Self);
+headerGenerator.AddDirective(CSPHeaderGenerator.DirectiveType.Img, CSPHeaderGenerator.StaticValues.SchemaData);
+headerGenerator.AddDirective(CSPHeaderGenerator.DirectiveType.Style, CSPHeaderGenerator.StaticValues.Self);
+headerGenerator.AddGoogleTagManager();
 
-Response.AddHeader("Content-Security-Policy", headerBuilder.ToString());
+Response.AddHeader("Content-Security-Policy", headerGenerator.ToString());
 ```

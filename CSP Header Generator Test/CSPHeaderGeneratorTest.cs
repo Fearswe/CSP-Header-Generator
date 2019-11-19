@@ -8,47 +8,47 @@ namespace CSP_Header_Generator_Test
 	public class CSPHeaderGeneratorTest
 	{
 		[TestMethod]
-		public void TestCSPHeaderBuilderConstructor()
+		public void TestCSPHeaderGeneratorConstructor()
 		{
-			var cspHeaderBuilderDefault = new CSPHeaderGenerator(CSPHeaderGenerator.StaticValues.None);
-			var cspHeaderBuilderNoDefault = new CSPHeaderGenerator();
+			var cspHeaderGeneratorDefault = new CSPHeaderGenerator(CSPHeaderGenerator.StaticValues.None);
+			var cspHeaderGeneratorNoDefault = new CSPHeaderGenerator();
 
-			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderBuilderDefault.ToString()));
-			Assert.IsTrue(String.Equals(cspHeaderBuilderDefault.ToString(), "default-src 'none';"));
-			Assert.ThrowsException<Exception>(cspHeaderBuilderNoDefault.ToString);
+			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderGeneratorDefault.ToString()));
+			Assert.IsTrue(String.Equals(cspHeaderGeneratorDefault.ToString(), "default-src 'none';"));
+			Assert.ThrowsException<Exception>(cspHeaderGeneratorNoDefault.ToString);
 		}
 
 		[TestMethod]
-		public void TestCSPHeaderBuilderCustomValue()
+		public void TestCSPHeaderGeneratorCustomValue()
 		{
-			var cspHeaderBuilder = new CSPHeaderGenerator();
-			cspHeaderBuilder.AddDirective(CSPHeaderGenerator.DirectiveType.Default, CSPHeaderGenerator.StaticValues.Self);
+			var cspHeaderGenerator = new CSPHeaderGenerator();
+			cspHeaderGenerator.AddDirective(CSPHeaderGenerator.DirectiveType.Default, CSPHeaderGenerator.StaticValues.Self);
 
-			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderBuilder.ToString()));
-			Assert.IsTrue(String.Equals(cspHeaderBuilder.ToString(), "default-src 'self';"));
+			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderGenerator.ToString()));
+			Assert.IsTrue(String.Equals(cspHeaderGenerator.ToString(), "default-src 'self';"));
 		}
 
 		[TestMethod]
-		public void TestCSPHeaderBuilderGoogleDirectives()
+		public void TestCSPHeaderGeneratorGoogleDirectives()
 		{
-			var cspHeaderBuilder = new CSPHeaderGenerator();
-			cspHeaderBuilder.AddGoogleTagManager();
+			var cspHeaderGenerator = new CSPHeaderGenerator();
+			cspHeaderGenerator.AddGoogleTagManager();
 
-			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderBuilder.ToString()));
-			Assert.IsTrue(String.Equals(cspHeaderBuilder.ToString(), "img-src https://www.googletagmanager.com; script-src 'unsafe-inline' https://www.googletagmanager.com;"));
+			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderGenerator.ToString()));
+			Assert.IsTrue(String.Equals(cspHeaderGenerator.ToString(), "img-src https://www.googletagmanager.com; script-src 'unsafe-inline' https://www.googletagmanager.com;"));
 
 		}
 
 		[TestMethod]
-		public void TestCSPHeaderBuilderCustomDirective()
+		public void TestCSPHeaderGeneratorCustomDirective()
 		{
-			var cspHeaderBuilder = new CSPHeaderGenerator();
+			var cspHeaderGenerator = new CSPHeaderGenerator();
 
-			cspHeaderBuilder.AddDirective("test", CSPHeaderGenerator.StaticValues.Self);
-			cspHeaderBuilder.AddDirective("test-test", CSPHeaderGenerator.StaticValues.Self);
+			cspHeaderGenerator.AddDirective("test", CSPHeaderGenerator.StaticValues.Self);
+			cspHeaderGenerator.AddDirective("test-test", CSPHeaderGenerator.StaticValues.Self);
 
-			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderBuilder.ToString()));
-			Assert.IsTrue(String.Equals(cspHeaderBuilder.ToString(), "test-src 'self'; test-test 'self';"));
+			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderGenerator.ToString()));
+			Assert.IsTrue(String.Equals(cspHeaderGenerator.ToString(), "test-src 'self'; test-test 'self';"));
 		}
 	}
 }
