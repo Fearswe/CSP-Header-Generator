@@ -19,8 +19,9 @@ namespace CSP_Header_Generator
 			Media,
 			Script,
 			Style
-		}
-		
+		}	
+
+
 		/// <summary>
 		/// Common values for directives
 		/// </summary>
@@ -96,6 +97,32 @@ namespace CSP_Header_Generator
 				this.Directives.Add(directiveType.ToLower(), new List<String> { value });
 			}
 		}
+
+		/// <summary>
+		/// Add a report-uri directive
+		/// </summary>
+		/// <param name="uri">The uri to the server to send the report to</param>
+		public void AddReportUri(String uri)
+		{
+			if(this.Directives.TryGetValue("report-uri", out List<String> directive))
+			{
+				directive.Add(uri);
+			}
+			else
+			{
+				this.Directives.Add("report-uri", new List<String> { uri });
+			}
+		}
+
+		/// <summary>
+		/// Add a report-uri directive
+		/// </summary>
+		/// <param name="uri">The uri to the server to send the report to</param>
+		public void AddReportUri(Uri uri)
+		{
+			this.AddReportUri(uri.ToString());
+		}
+
 
 		/// <summary>
 		/// Automatically add the directives needed and used by Google Tag Manager
