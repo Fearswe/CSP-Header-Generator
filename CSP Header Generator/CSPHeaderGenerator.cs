@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CSP_Header_Generator
 {
-	public class CSPHeaderBuilder
+	public class CSPHeaderGenerator
 	{
 		/// <summary>
 		/// Common directive types
@@ -44,7 +44,7 @@ namespace CSP_Header_Generator
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		public CSPHeaderBuilder()
+		public CSPHeaderGenerator()
 		{
 			this.Directives = new Dictionary<String, List<String>>();
 
@@ -58,7 +58,7 @@ namespace CSP_Header_Generator
 		/// Default constructor but allows specifying the Default directive
 		/// </summary>
 		/// <param name="Default">Value of the Default directive</param>
-		public CSPHeaderBuilder(String Default) : this()
+		public CSPHeaderGenerator(String Default) : this()
 		{
 			this.AddDirective(DirectiveType.Default, Default);
 		}

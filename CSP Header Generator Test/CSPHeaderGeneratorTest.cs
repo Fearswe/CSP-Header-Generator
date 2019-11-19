@@ -10,8 +10,8 @@ namespace CSP_Header_Generator_Test
 		[TestMethod]
 		public void TestCSPHeaderBuilderConstructor()
 		{
-			var cspHeaderBuilderDefault = new CSPHeaderBuilder(CSPHeaderBuilder.StaticValues.None);
-			var cspHeaderBuilderNoDefault = new CSPHeaderBuilder();
+			var cspHeaderBuilderDefault = new CSPHeaderGenerator(CSPHeaderGenerator.StaticValues.None);
+			var cspHeaderBuilderNoDefault = new CSPHeaderGenerator();
 
 			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderBuilderDefault.ToString()));
 			Assert.IsTrue(String.Equals(cspHeaderBuilderDefault.ToString(), "default-src 'none';"));
@@ -21,8 +21,8 @@ namespace CSP_Header_Generator_Test
 		[TestMethod]
 		public void TestCSPHeaderBuilderCustomValue()
 		{
-			var cspHeaderBuilder = new CSPHeaderBuilder();
-			cspHeaderBuilder.AddDirective(CSPHeaderBuilder.DirectiveType.Default, CSPHeaderBuilder.StaticValues.Self);
+			var cspHeaderBuilder = new CSPHeaderGenerator();
+			cspHeaderBuilder.AddDirective(CSPHeaderGenerator.DirectiveType.Default, CSPHeaderGenerator.StaticValues.Self);
 
 			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderBuilder.ToString()));
 			Assert.IsTrue(String.Equals(cspHeaderBuilder.ToString(), "default-src 'self';"));
@@ -31,7 +31,7 @@ namespace CSP_Header_Generator_Test
 		[TestMethod]
 		public void TestCSPHeaderBuilderGoogleDirectives()
 		{
-			var cspHeaderBuilder = new CSPHeaderBuilder();
+			var cspHeaderBuilder = new CSPHeaderGenerator();
 			cspHeaderBuilder.AddGoogleTagManager();
 
 			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderBuilder.ToString()));
@@ -42,10 +42,10 @@ namespace CSP_Header_Generator_Test
 		[TestMethod]
 		public void TestCSPHeaderBuilderCustomDirective()
 		{
-			var cspHeaderBuilder = new CSPHeaderBuilder();
+			var cspHeaderBuilder = new CSPHeaderGenerator();
 
-			cspHeaderBuilder.AddDirective("test", CSPHeaderBuilder.StaticValues.Self);
-			cspHeaderBuilder.AddDirective("test-test", CSPHeaderBuilder.StaticValues.Self);
+			cspHeaderBuilder.AddDirective("test", CSPHeaderGenerator.StaticValues.Self);
+			cspHeaderBuilder.AddDirective("test-test", CSPHeaderGenerator.StaticValues.Self);
 
 			Assert.IsFalse(String.IsNullOrWhiteSpace(cspHeaderBuilder.ToString()));
 			Assert.IsTrue(String.Equals(cspHeaderBuilder.ToString(), "test-src 'self'; test-test 'self';"));
