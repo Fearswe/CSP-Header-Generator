@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace CSP_Header_Generator
 {
@@ -19,8 +20,7 @@ namespace CSP_Header_Generator
 			Media,
 			Script,
 			Style
-		}	
-
+		}
 
 		/// <summary>
 		/// Common values for directives
@@ -40,8 +40,6 @@ namespace CSP_Header_Generator
 			public static String SchemaFilestream = "filesystem:";
 		}
 
-		private Dictionary<String, List<String>> Directives { get; set; }
-
 		/// <summary>
 		/// Default constructor
 		/// </summary>
@@ -56,63 +54,217 @@ namespace CSP_Header_Generator
 		}
 
 		/// <summary>
-		/// Default constructor but allows specifying the Default directive
+		/// Default constructor but allows specifying the Default directive value
 		/// </summary>
-		/// <param name="Default">Value of the Default directive</param>
-		public CSPHeaderGenerator(String Default) : this()
+		/// <param name="Default">Value(s) of the Default directive</param>
+		public CSPHeaderGenerator(params String[] Default) : this()
 		{
 			this.AddDirective(DirectiveType.Default, Default);
 		}
 
 		/// <summary>
-		/// Add a value to a directive using the common directive types
+		/// Generate the complete set of directives ready to use as a header value
 		/// </summary>
-		/// <param name="directiveType">The directive to add value to</param>
-		/// <param name="value">The value to add to the directive</param>
-		public void AddDirective(DirectiveType directiveType, String value)
+		/// <returns>The directive set</returns>
+		public override String ToString()
 		{
-			this.AddDirective(directiveType.ToString(), value);
+			String header = String.Empty;
+
+			foreach (var directive in this.Directives)
+			{
+				if (directive.Value.Count > 0)
+				{
+					header += $" {(directive.Key.Contains("-") ? directive.Key : directive.Key + "-src")} {String.Join(" ", directive.Value)};";
+				}
+			}
+
+			if (String.IsNullOrWhiteSpace(header))
+			{
+				throw new Exception("No directives declared");
+			}
+			return header.Trim();
 		}
 
-		/// <summary>
-		/// Add a custom, or common, directive type and assing it a value
-		/// </summary>
-		/// <param name="directiveType">The directive type to add</param>
-		/// <param name="value">The value to set to the directive type</param>
-		public void AddDirective(String directiveType, String value)
+		#region Privates
+
+		private Dictionary<String, List<String>> Directives { get; set; }
+
+		private void AddDirective(String directiveType, List<String> values)
 		{
-			if (this.Directives.TryGetValue(directiveType.ToLower(), out List<String> directive))
+			if (values.Count == 0)
 			{
-				if(!directive.Contains(value))
+				throw new ArgumentNullException(nameof(values), $"You must provide at least one value to add");
+			}
+
+			if (this.Directives.TryGetValue(directiveType, out List<String> directive))
+			{
+				foreach (var value in values)
 				{
-					directive.Add(value);
+					if (!directive.Contains(value))
+					{
+						directive.Add(value);
+					}
 				}
-				
 			}
 			else
 			{
-				this.Directives.Add(directiveType.ToLower(), new List<String> { value });
+				this.Directives.Add(directiveType, values);
+			}
+		}
+
+		private void AddReportUri(List<String> uris)
+		{
+			this.AddDirective("report-uri", uris);
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="directiveType"></param>
+		/// <param name="values"></param>
+		private void RemoveDirectiveValue(String directiveType, List<String> values)
+		{
+			if (values.Count == 0)
+			{
+				throw new ArgumentNullException(nameof(values), $"You must provide at least one value to remove");
+			}
+
+			if (this.Directives.TryGetValue(directiveType, out List<String> directive))
+			{
+				foreach (var value in values)
+				{
+					if (directive.Contains(value))
+					{
+						directive.Remove(value);
+					}
+				}
+			}
+		}
+
+		private void ReplaceDirectiveValue(String directiveType, List<String> values)
+		{
+			if (values.Count == 0)
+			{
+				throw new ArgumentNullException(nameof(values), $"You must provde at lest one value to replace, if you want to clear a directive use {nameof(this.ClearDirective)} instead");
+			}
+
+			if (this.Directives.ContainsKey(directiveType))
+			{
+				this.Directives[directiveType] = values;
+			}
+		}
+
+		#endregion Privates
+
+		/// <summary>
+		/// Add one or more values to a directive
+		/// </summary>
+		/// <param name="directiveType">The directive to add to</param>
+		/// <param name="values">The value(s) to add</param>
+		/// <exception cref="ArgumentNullException">Values may not be empty</exception>
+		public void AddDirective(DirectiveType directiveType, params String[] values)
+		{
+			this.AddDirective(directiveType.ToString().ToLower(), values.ToList<String>());
+		}
+
+		/// <summary>
+		/// Add one or more values to a directive
+		/// </summary>
+		/// <param name="directiveType">The directive to add to</param>
+		/// <param name="values">The value(s) to add</param>
+		/// <exception cref="ArgumentNullException">Values may not be empty</exception>
+		public void AddDirective(String directiveType, params String[] values)
+		{
+			this.AddDirective(directiveType, values.ToList<String>());
+		}
+
+		/// <summary>
+		/// Add one or more values to report-uri directive
+		/// </summary>
+		/// <param name="uris">The value(s) to add</param>
+		/// <exception cref="ArgumentNullException">Uris may not be empty</exception>
+		public void AddReportUri(params String[] uris)
+		{
+			this.AddReportUri(uris.ToList<String>());
+		}
+
+		/// <summary>
+		/// Add one or more values to report-uri directive
+		/// Note that Uri.ToString() will append a trailing slash
+		/// </summary>
+		/// <param name="uris">The value(s) to add</param>
+		/// <exception cref="ArgumentNullException">Uris may not be empty</exception>
+		public void AddReportUri(params Uri[] uris)
+		{
+			this.AddReportUri(uris.Select(uri => uri.ToString()).ToList<String>());
+		}
+
+		/// <summary>
+		/// Replaces all values in a directive with new value(s)
+		/// </summary>
+		/// <param name="directiveType">THe directive to replace</param>
+		/// <param name="values">The value(s) to replace</param>
+		/// <exception cref="ArgumentNullException">Values may not be empty</exception>
+		public void ReplaceDirectiveValues(String directiveType, params String[] values)
+		{
+			this.ReplaceDirectiveValue(directiveType, values.ToList<String>());
+		}
+
+		/// <summary>
+		/// Replaces all values in a directive with new value(s)
+		/// </summary>
+		/// <param name="directiveType">THe directive to replace</param>
+		/// <param name="values">The value(s) to replace</param>
+		/// <exception cref="ArgumentNullException">Values may not be empty</exception>
+		public void ReplaceDirectiveValues(DirectiveType directiveType, params String[] values)
+		{
+			this.ReplaceDirectiveValue(directiveType.ToString().ToLower(), values.ToList<String>());
+		}
+
+		/// <summary>
+		/// Remove one or more values from a directive
+		/// </summary>
+		/// <param name="directiveType">The directive to remove from</param>
+		/// <param name="values">The value(s) to remove</param>
+		/// <exception cref="ArgumentNullException">Values may not be empty</exception>
+		public void RemoveDirectiveValues(DirectiveType directiveType, params String[] values)
+		{
+			this.RemoveDirectiveValue(directiveType.ToString().ToLower(), values.ToList<String>());
+		}
+
+		/// <summary>
+		/// Remove one or more values from a directive
+		/// </summary>
+		/// <param name="directiveType">The directive to remove from</param>
+		/// <param name="values">The value(s) to remove</param>
+		/// <exception cref="ArgumentNullException">Values may not be empty</exception>
+		public void RemoveDirectiveValues(String directiveType, params String[] values)
+		{
+			this.RemoveDirectiveValue(directiveType, values.ToList<String>());
+		}
+
+		/// <summary>
+		/// Clear a directive of all values
+		/// </summary>
+		/// <param name="directiveType">The directive to clear</param>
+		public void ClearDirective(String directiveType)
+		{
+			if (this.Directives.TryGetValue(directiveType, out List<String> directive))
+			{
+				directive.Clear();
 			}
 		}
 
 		/// <summary>
-		/// Add a report-uri directive
+		/// Clear a directive of all values
 		/// </summary>
-		/// <param name="uri">The uri to the server to send the report to</param>
-		public void AddReportUri(String uri)
+		/// <param name="directiveType">The directive to clear</param>
+		public void ClearDirective(DirectiveType directiveType)
 		{
-			this.AddDirective("report-uri", uri);
+			this.ClearDirective(directiveType.ToString().ToLower());
 		}
 
-		/// <summary>
-		/// Add a report-uri directive
-		/// </summary>
-		/// <param name="uri">The uri to the server to send the report to</param>
-		public void AddReportUri(Uri uri)
-		{
-			this.AddReportUri(uri.ToString());
-		}
-
+		#region Pre-made directives
 
 		/// <summary>
 		/// Automatically add the directives needed and used by Google Tag Manager
@@ -120,16 +272,13 @@ namespace CSP_Header_Generator
 		/// <param name="customJavascriptVariables">If you use custom javascript variables, will allow unsafe-eval for scripts</param>
 		public void AddGoogleTagManager(Boolean customJavascriptVariables = false)
 		{
-			this.AddDirective(DirectiveType.Script, StaticValues.UnsafeInline);
-			this.AddDirective(DirectiveType.Script, "https://www.googletagmanager.com");
-
+			this.AddDirective(DirectiveType.Script, StaticValues.UnsafeInline, "https://www.googletagmanager.com");
 			this.AddDirective(DirectiveType.Img, "https://www.googletagmanager.com");
 
 			if (customJavascriptVariables)
 			{
 				this.AddDirective(DirectiveType.Script, StaticValues.UnsafeEval);
 			}
-
 		}
 
 		/// <summary>
@@ -138,15 +287,9 @@ namespace CSP_Header_Generator
 		public void AddGoogleTagManagerPreview()
 		{
 			this.AddDirective(DirectiveType.Script, "https://tagmanager.google.com");
-
-			this.AddDirective(DirectiveType.Style, "https://tagmanager.google.com");
-			this.AddDirective(DirectiveType.Style, "https://fonts.googleapis.com");
-
-			this.AddDirective(DirectiveType.Img, "https://ssl.gstatic.com");
-			this.AddDirective(DirectiveType.Img, "https://www.gstatic.com");
-
-			this.AddDirective(DirectiveType.Font, "https://fonts.gstatic.com");
-			this.AddDirective(DirectiveType.Font, StaticValues.SchemaData);
+			this.AddDirective(DirectiveType.Style, "https://tagmanager.google.com", "https://fonts.googleapis.com");
+			this.AddDirective(DirectiveType.Img, "https://ssl.gstatic.com", "https://www.gstatic.com");
+			this.AddDirective(DirectiveType.Font, "https://fonts.gstatic.com", StaticValues.SchemaData);
 		}
 
 		/// <summary>
@@ -154,11 +297,8 @@ namespace CSP_Header_Generator
 		/// </summary>
 		public void AddGoogleAnalytics()
 		{
-			this.AddDirective(DirectiveType.Script, "https://www.google-analytics.com");
-			this.AddDirective(DirectiveType.Script, "https://ssl.google-analytics.com");
-
+			this.AddDirective(DirectiveType.Script, "https://www.google-analytics.com", "https://ssl.google-analytics.com");
 			this.AddDirective(DirectiveType.Img, "https://www.google-analytics.com");
-
 			this.AddDirective(DirectiveType.Connect, "https://www.google-analytics.com");
 		}
 
@@ -175,11 +315,8 @@ namespace CSP_Header_Generator
 		/// </summary>
 		public void AddGoogleAdsConversions()
 		{
-			this.AddDirective(DirectiveType.Script, "https://www.googleadservices.com");
-			this.AddDirective(DirectiveType.Script, "https://www.google.com");
-
-			this.AddDirective(DirectiveType.Img, "https://googleads.g.doubleclick.net");
-			this.AddDirective(DirectiveType.Img, "https://www.google.com");
+			this.AddDirective(DirectiveType.Script, "https://www.googleadservices.com", "https://www.google.com");
+			this.AddDirective(DirectiveType.Img, "https://googleads.g.doubleclick.net", "https://www.google.com");
 		}
 
 		/// <summary>
@@ -187,37 +324,11 @@ namespace CSP_Header_Generator
 		/// </summary>
 		public void AddGoogleAdsRemarketing()
 		{
-			this.AddDirective(DirectiveType.Script, "https://www.googleadservices.com");
-			this.AddDirective(DirectiveType.Script, "https://googleads.g.doubleclick.net");
-			this.AddDirective(DirectiveType.Script, "https://www.google.com");
-
+			this.AddDirective(DirectiveType.Script, "https://www.googleadservices.com", "https://googleads.g.doubleclick.net", "https://www.google.com");
 			this.AddDirective(DirectiveType.Img, "https://www.google.com");
-
 			this.AddDirective(DirectiveType.Frame, "https://bid.g.doubleclick.net");
 		}
 
-		/// <summary>
-		/// Generate the complete set of directives ready to use as a header value
-		/// </summary>
-		/// <returns>The directive set</returns>
-		public override String ToString()
-		{
-			String header = String.Empty;
-
-			foreach (var directive in this.Directives)
-			{
-				if (directive.Value.Count > 0)
-				{
-					header += $" {(directive.Key.ToLower().Contains("-") ? directive.Key.ToLower() : directive.Key.ToLower() + "-src")} {String.Join(" ", directive.Value)};"; 
-				}
-			}
-
-			if(String.IsNullOrWhiteSpace(header))
-			{
-				throw new Exception("No directives declared");
-			}
-			return header.Trim();
-		}
-
+		#endregion Pre-made directives
 	}
 }
